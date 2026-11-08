@@ -1,0 +1,19 @@
+# Cocos Creator generated folders
+library/
+temp/
+local/
+build/
+profiles/
+native/
+
+# Tooling
+node_modules/
+.test-build/
+.DS_Store
+
+# Browser preview build output
+tools/web-preview/www/game.js
+tools/web-preview/www/res/
+
+# Local editor/agent settings
+.claude/

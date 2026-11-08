@@ -1,0 +1,17 @@
+{
+    "name": "khoiofthemask",
+    "uuid": "6f1d3b52-8a4e-4c1f-9b7e-2d5a0c8e4f13",
+    "creator": {
+        "version": "3.8.6"
+    },
+    "scripts": {
+        "test": "tsc -p tests/tsconfig.json && node --test \".test-build/tests/*.test.js\"",
+        "preview:build": "node tools/web-preview/copy-assets.js && esbuild tools/web-preview/main.ts --bundle --tsconfig=tools/web-preview/tsconfig.json --alias:cc=./tools/web-preview/cc --outfile=tools/web-preview/www/game.js",
+        "preview": "npm run preview:build -- --servedir=tools/web-preview/www --serve=8723"
+    },
+    "devDependencies": {
+        "@types/node": "^22.10.0",
+        "typescript": "~5.6.3",
+        "esbuild": "^0.24.0"
+    }
+}
