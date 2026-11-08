@@ -14,6 +14,7 @@ node_modules/
 # Browser preview build output
 tools/web-preview/www/game.js
 tools/web-preview/www/res/
+tools/web-preview/www/sw.js
 
 # Local editor/agent settings
 .claude/

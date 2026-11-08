@@ -2,15 +2,89 @@
 <html lang="vi">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Khôi – bản chạy thử</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>Khôi: Lướt Hang Đèn Lồng</title>
+    <meta name="description" content="Lướt trong hang, nhặt đom đóm và chạy trốn Bóng Tối.">
+    <meta name="theme-color" content="#070a16">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Khôi">
     <style>
         html, body { margin: 0; height: 100%; background: #070a16; overflow: hidden; touch-action: none; }
         canvas { display: block; touch-action: none; }
+        #update {
+            position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translate(-50%, 150%);
+            display: flex; align-items: center; gap: 14px; padding: 12px 14px 12px 18px; border-radius: 16px;
+            background: #121834; border: 2px solid #36e0c8; color: #f1f5ff; box-shadow: 0 8px 30px rgba(0, 0, 0, .5);
+            font: 600 16px "Segoe UI", Roboto, Arial, sans-serif; white-space: nowrap;
+            transition: transform .35s ease; z-index: 10;
+        }
+        #update.show { transform: translate(-50%, 0); }
+        #update button {
+            border: 0; border-radius: 12px; padding: 10px 16px; cursor: pointer;
+            background: #2fbf9b; color: #fff; font: 700 15px "Segoe UI", Roboto, Arial, sans-serif;
+        }
+        #update button:disabled { opacity: .6; cursor: default; }
     </style>
 </head>
 <body>
     <canvas id="game"></canvas>
+    <div id="update" role="status" aria-live="polite">
+        <span>Có phiên bản mới!</span>
+        <button type="button">CẬP NHẬT</button>
+    </div>
+    <script>
+        // PWA: offline play and an update button when a new version is deployed.
+        (function () {
+            if (!('serviceWorker' in navigator)) return;
+            // Skip on the local dev server (it rebuilds on every reload) unless ?sw is in the URL.
+            var local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+            if (local && location.search.indexOf('sw') < 0) return;
+
+            var banner = document.getElementById('update');
+            var button = banner.querySelector('button');
+            var waiting = null;
+
+            function offer(worker) {
+                waiting = worker;
+                banner.classList.add('show');
+            }
+
+            button.addEventListener('click', function () {
+                if (!waiting) return;
+                button.disabled = true;
+                button.textContent = 'ĐANG CẬP NHẬT…';
+                waiting.postMessage({ type: 'SKIP_WAITING' });
+            });
+
+            // The new worker took over: reload once to run the new version.
+            var reloading = false;
+            navigator.serviceWorker.addEventListener('controllerchange', function () {
+                if (reloading) return;
+                reloading = true;
+                location.reload();
+            });
+
+            navigator.serviceWorker.register('sw.js').then(function (reg) {
+                if (reg.waiting && navigator.serviceWorker.controller) offer(reg.waiting);
+                reg.addEventListener('updatefound', function () {
+                    var worker = reg.installing;
+                    if (!worker) return;
+                    worker.addEventListener('statechange', function () {
+                        // "installed" with an existing controller means this is an update, not the first install.
+                        if (worker.state === 'installed' && navigator.serviceWorker.controller) offer(worker);
+                    });
+                });
+                // Look for new versions when the game regains focus and every few minutes.
+                document.addEventListener('visibilitychange', function () { if (!document.hidden) reg.update(); });
+                setInterval(function () { reg.update(); }, 5 * 60 * 1000);
+            });
+        })();
+    </script>
     <script src="game.js"></script>
 </body>
 </html>
