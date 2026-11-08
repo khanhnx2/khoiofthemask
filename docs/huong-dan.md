@@ -43,6 +43,16 @@ npm run preview
 
 Sau đó mở http://localhost:8723. Lệnh này đóng gói chính code game cùng `tools/web-preview/cc`. Đó là một lớp giả lập nhỏ, cài lại bằng Canvas 2D đúng những API Cocos mà game dùng. Bản này chỉ để chơi thử và kiểm tra nhanh. Bản phát hành thật vẫn phải build bằng Cocos Creator.
 
+## Bản web trên GitHub Pages (PWA)
+
+Chơi tại: https://khanhnx2.github.io/khoiofthemask/
+
+- Mỗi lần push lên nhánh `main`, workflow [deploy-pages.yml](../.github/workflows/deploy-pages.yml) sẽ chạy test, build bản trình duyệt (`npm run preview:build`) rồi đưa thư mục `tools/web-preview/www` lên Pages.
+- Đây là **PWA**: trên điện thoại chọn "Thêm vào màn hình chính" (hoặc nút cài đặt trên Chrome máy tính), game sẽ mở toàn màn hình như một app và **chơi được khi không có mạng**.
+- **Cập nhật:** mỗi lần build có một số phiên bản mới (`version` trong package.json + mã commit + thời gian), được ghi vào `sw.js` do [prepare-www.js](../tools/web-preview/prepare-www.js) tạo từ [sw-template.js](../tools/web-preview/sw-template.js). Khi có bản mới, nó tải ngầm, rồi game hiện thanh **"Có phiên bản mới! — CẬP NHẬT"**. Bấm vào thì game tải lại với bản mới. Game tự kiểm tra bản mới mỗi khi bạn quay lại game và cứ 5 phút một lần.
+- Trên server thử nghiệm ở máy (`npm run preview`), service worker bị tắt để không giữ bản cũ. Thêm `?sw` vào cuối địa chỉ nếu muốn thử nó.
+- Icon app được vẽ bằng [make-icons.py](../tools/web-preview/make-icons.py).
+
 ## Âm thanh
 
 Nhạc và hiệu ứng là nhạc gốc, được tổng hợp bằng code trong [tools/audio/generate-audio.py](../tools/audio/generate-audio.py). Script xuất ra file MP3 trong `assets/resources/audio/`:
